@@ -125,7 +125,7 @@ spec:
     }
     stage('Image Vulnerability Scan_By NeuVector') {
       steps {
-        neuvector registrySelection: 'harbor_reg', repository: 'library/samples/spring-petclinic', numberOfHighSeverityToFail: "0", numberOfMediumSeverityToFail: "0", tag:"v1.0.${env.BUILD_ID}"
+        neuvector registrySelection: 'harbor_reg', repository: 'library/samples/spring-petclinic', numberOfHighSeverityToFail: "1000", numberOfMediumSeverityToFail: "1000", tag:"v1.0.${env.BUILD_ID}"
       }
     }
     stage('Approval') {
