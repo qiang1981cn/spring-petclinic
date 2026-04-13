@@ -13,58 +13,7 @@ pipeline {
     DEPLOY_GITREPO_BRANCH = "main"
     DEPLOY_GITREPO_TOKEN = credentials('my-github')
   }    
-  agent {
-    kubernetes {
-      label "spring-petclinic-${myid}"
-      instanceCap 1
-      defaultContainer 'jnlp'
-      yaml """
-apiVersion: v1
-kind: Pod
-metadata:
-  namespace: jenkins-workers
-spec:
-  # Use service account that can deploy to all namespaces
-  serviceAccountName: default
-  containers:
-  - name: maven
-    image: maven:3.8.1-openjdk-16
-    command:
-    - cat
-    tty: true
-    volumeMounts:
-      - mountPath: "/root/.m2"
-        name: m2
-  - name: kaniko
-    image: gcr.io/kaniko-project/executor:v1.6.0-debug
-    imagePullPolicy: Always
-    command:
-    - sleep
-    args:
-    - 99d    
-    volumeMounts:
-    - mountPath: "/root/.m2"
-      name: m2      
-    - name: docker-config
-      mountPath: /kaniko/.docker
-    - name: ca-cert
-      mountPath: /kaniko/ssl/certs/
-  volumes:
-    - name: ca-cert
-      secret:
-        secretName: ca-bundle
-        items:
-        - key: additional-ca-cert-bundle.crt
-          path: additional-ca-cert-bundle.crt
-    - name: docker-config
-      configMap:
-        name: docker-config
-    - name: m2
-      persistentVolumeClaim:
-        claimName: m2
-"""
-}
-   }
+  agent any
   stages {
     stage('Build') {
       steps {
