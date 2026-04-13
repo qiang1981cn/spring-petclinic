@@ -11,7 +11,7 @@ pipeline {
     DEPLOY_GITREPO_USER = "qiang1981cn"    
     DEPLOY_GITREPO_URL = "github.com/${DEPLOY_GITREPO_USER}/spring-petclinic-helmchart.git"
     DEPLOY_GITREPO_BRANCH = "main"
-    DEPLOY_GITREPO_TOKEN = credentials('my-github')
+    //DEPLOY_GITREPO_TOKEN = credentials('my-github')
   }    
   agent any
   stages {
@@ -86,27 +86,6 @@ pipeline {
         echo "Update helm chart to trigger GitOps-based deployment..."
       }
     }    
-    stage('GitOps-based Deploy') {
-      steps {
-        container('maven') {
-          sh """
-            git config --global user.name $env.GIT_AUTHOR_NAME
-            git config --global user.email $env.GIT_AUTHOR_EMAIL
-            git clone https://$env.DEPLOY_GITREPO_USER:$env.DEPLOY_GITREPO_TOKEN@$env.DEPLOY_GITREPO_URL --branch=$env.DEPLOY_GITREPO_BRANCH deploy
-            # After cloning
-            cd deploy
-            # update values.yaml
-            sed -i -r 's,repository: (.+),repository: ${env.HARBOR_URL}/library/samples/spring-petclinic,' values.yaml
-            sed -i 's/tag: v1.0.*/tag: v1.0.${env.BUILD_ID}/' values.yaml
-            cat values.yaml
-            git commit -am 'bump up version number'
-            echo "the token is $env.DEPLOY_GITREPO_TOKEN"
-            git remote set-url origin https://$env.DEPLOY_GITREPO_USER:$env.DEPLOY_GITREPO_TOKEN@$env.DEPLOY_GITREPO_URL
-            git push origin main
-          """
-        }
-      }
-    }   
   }
 }
 
